@@ -15,7 +15,7 @@ object lab16 {
         conf.set("es.port", "9200")        
         val sc = new SparkContext(conf)
         sc.setLogLevel("ERROR")
-        val ssc = new StreamingContext(sc, Seconds(10))
+        val ssc = new StreamingContext(sc, Seconds(20))
         val ds = ssc.socketTextStream("localhost", 9999)
         val ds1 = ds.map(x => x.split(",")).map(x=> empinfo(x(0).toString,x(1).toString,x(2).toInt))
         ds1.print()
