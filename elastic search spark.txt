@@ -1,0 +1,29 @@
+package main.scala.streamingworkouts
+import org.apache.spark.SparkConf
+import  org.apache.spark.SparkContext
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import StreamingContext._
+import org.elasticsearch.spark.streaming._
+
+object lab16 {
+  
+  case class empinfo(name:String,city:String,age:Integer)
+  def main(args:Array[String])
+  {
+        val conf = new SparkConf().setAppName("esstream").setMaster("local[*]")
+        conf.set("es.nodes", "localhost")
+        conf.set("es.port", "9200")        
+        val sc = new SparkContext(conf)
+        sc.setLogLevel("ERROR")
+        val ssc = new StreamingContext(sc, Seconds(10))
+        val ds = ssc.socketTextStream("localhost", 9999)
+        val ds1 = ds.map(x => x.split(",")).map(x=> empinfo(x(0).toString,x(1).toString,x(2).toInt))
+        ds1.print()
+        ds1.saveToEs("empinfo/emp1")
+        ssc.start()
+        ssc.awaitTermination()
+  }
+
+case class transRow(transid: String, transdate: String, custid: String, salesamt: Float, category: String, prodname: String, state: String, city: String,payment: String)
+
+}
